@@ -1,0 +1,854 @@
+from utilities import Tool
+
+from tkinter import ttk
+import tkinter as tk
+from tkinter import messagebox
+from tkinter.scrolledtext import ScrolledText
+
+import sqlite3
+from sqlite3 import Error
+
+import openpyxl
+
+import os
+import sys
+import fnmatch
+
+import time
+import datetime
+from datetime import datetime
+
+
+# __________Setup Database Connection__________
+dir_path = os.path.dirname(os.path.realpath(__file__))
+conn = sqlite3.connect(f'{dir_path}\packing.db')
+cursor = conn.cursor()
+
+# __________Setup GUI__________
+root = tk.Tk()
+style = ttk.Style(root)
+root.geometry('1350x669')
+root.title("Packing Team")
+root.config(bg='#33393b')
+
+theme_path = (f'{os.path.dirname(sys.argv[0])}' + r'\awthemes-9.2.2').replace("\\", "/")
+root.tk.eval(f"""
+    set base_theme_dir {theme_path}
+
+    package ifneeded awthemes 9.2.2 \
+        [list source [file join $base_theme_dir awthemes.tcl]]
+    package ifneeded colorutils 4.8 \
+        [list source [file join $base_theme_dir colorutils.tcl]]
+    package ifneeded awdark 7.7 \
+        [list source [file join $base_theme_dir awdark.tcl]]
+    """)
+root.tk.call("package", "require", 'awdark')
+root.tk.call("package", "require", 'awlight')
+# print(style.theme_names())
+style.theme_use('awlight')
+
+
+# __________Future Expansion (unimplemented) Functions__________
+def loginUserWindow():
+    # StartFrame = tk.Frame(root, bg='#33393b')
+    # StartFrame.place(relx=0.4,rely=0.8,)
+    # var = tk.IntVar()
+
+    # IDEntry = ttk.Entry(StartFrame)
+    # IDEntry.grid(row=0, column=0, padx=5, pady=5)
+
+    # PassEntry = ttk.Entry(StartFrame)
+    # PassEntry.grid(row=1, column=0, padx=5, pady=5)
+
+    # LoginButton = tk.Button(StartFrame, text="Enter", font=('bold',24),width=15, command=lambda : checkLogin(IDEntry.get(), PassEntry.get()))
+    # LoginButton.grid(row=0, column=0, padx=10)
+
+    # ExitButton = tk.Button(StartFrame, text="Exit",font=('bold',24), width=15, command=lambda : exit_window())
+    # ExitButton.grid(row=0, column=2, padx=10)
+
+
+    # ContButton.wait_variable(var)
+    # ContButton.destroy()
+    # ExitButton.destroy()
+    pass
+
+def checkLogin(ID, password):
+
+    # conn = sqlite3.connect(f'{dir_path}\packing.db')
+    # cursor = conn.cursor()
+    # cursor.execute(f"SELECT ID, Password FROM users WHERE ID=:{ID}, Password=:{password}", {f'{ID}':ID, f'{password}':password})
+    # conn.commit()
+
+    # if len(cursor.fetchall()) == 1:
+    #     print('logging in')
+    # else:
+
+    #     SoLabel = ttk.Label(StartFrame, text='Enter Adming Code')
+    #     SoLabel.grid(row=3, column=1)
+    #     AdminCodeEntry = ttk.Entry(StartFrame)
+    #     AdminCodeEntry.grid(row=3, column=0, padx=5, pady=5)
+    pass
+
+def greetingScreem():
+
+    # StartFrame = tk.Frame(root, bg='#33393b')
+    # StartFrame.place(relx=0.4,rely=0.8,)
+    # var = tk.IntVar()
+    # ContButton = tk.Button(StartFrame, text="Enter", font=('bold',24),width=15, command=lambda : var.set(1))
+    # ContButton.grid(row=0, column=0, padx=10)
+    # ExitButton = tk.Button(StartFrame, text="Exit",font=('bold',24), width=15, command=lambda : exit_window())
+    # ExitButton.grid(row=0, column=1, padx=10)
+
+
+    # ContButton.wait_variable(var)
+    # ContButton.destroy()
+    # ExitButton.destroy()
+    pass
+
+
+# __________Tkinter Functions__________
+
+def add_tool_window():
+    home_page()
+    dest_widg_d_right()
+
+    DataFrameRightDashboard.config(text="Add New Tool:\n")
+
+    SoLabel = ttk.Label(DataFrameRightDashboard, text='SO: ')
+    SoLabel.grid(row=0, column=0)
+
+    IdLabel = ttk.Label(DataFrameRightDashboard, text='ID: ')
+    IdLabel.grid(row=1, column=0)
+
+    ModelLabel = ttk.Label(DataFrameRightDashboard, text='Model: ')
+    ModelLabel.grid(row=2, column=0)
+
+    CustomerLabel = ttk.Label(DataFrameRightDashboard, text='Customer: ')
+    CustomerLabel.grid(row=3, column=0)
+
+    DateLabel = ttk.Label(DataFrameRightDashboard, text='Ship Date: ')
+    DateLabel.grid(row=4, column=0)
+
+    SoEntry = ttk.Entry(DataFrameRightDashboard)
+    SoEntry.grid(row=0, column=1, padx=5, pady=5)
+   
+    IdEntry = ttk.Entry(DataFrameRightDashboard)
+    IdEntry.grid(row=1, column=1, padx=5, pady=5)
+
+    ModelEntry = ttk.Entry(DataFrameRightDashboard)
+    ModelEntry.grid(row=2, column=1, padx=5, pady=5)
+
+    CustomerEntry = ttk.Entry(DataFrameRightDashboard)
+    CustomerEntry.grid(row=3, column=1, padx=5, pady=5)
+
+    DateEntry = ttk.Entry(DataFrameRightDashboard)
+    DateEntry.grid(row=4, column=1, padx=5, pady=5)
+
+    AddnewFinal = ttk.Button(DataFrameRightDashboard, text="Add New Tool", width=15, command=lambda : add_tool((SoEntry.get(), IdEntry.get(), ModelEntry.get(), CustomerEntry.get(), DateEntry.get())))
+    AddnewFinal.grid(row=5, column=1, padx=5, pady=5)
+
+def pop_up_window(msg):
+    MsgBox = tk.messagebox.askquestion('Confirm', f'{msg}')
+    if MsgBox == 'yes':
+        return 'yes'
+    else:
+        return 'no'
+
+def credit_window():
+    MsgBox = tk.messagebox.showinfo('Info', """
+    General: 
+        This program offers the ability to manage the packing 
+        process of more significant machines/products. 
+        In order to enhance effiency, the program organize's 
+        the main packing process in one convinient location.
+    
+
+    Main Components: 
+        Procedural, Tkinter, SQLite, OS and Files
+
+
+    Credit: 
+        By: Eli Arnson
+        Written: Oct 2020
+    
+    """)
+
+def update_tool_window(tool_data):
+
+    dest_widg_d_right()
+
+    # DataFrameRightDashboard.config(text=f"UPDATE: {tool_data.model} - {tool_data.SO} - {tool_data.ID}\n")
+
+    SO_entry = 1
+    ID_entry = 1
+    SoLabel = ttk.Label(DataFrameRightDashboard, text='SO: ')
+    SoLabel.grid(row=0, column=0)
+
+    IdLabel = ttk.Label(DataFrameRightDashboard, text='ID: ')
+    IdLabel.grid(row=1, column=0)
+
+    ModelLabel = ttk.Label(DataFrameRightDashboard, text='Model: ')
+    ModelLabel.grid(row=2, column=0)
+
+    CustomerLabel = ttk.Label(DataFrameRightDashboard, text='Customer: ')
+    CustomerLabel.grid(row=3, column=0)
+
+    DateLabel = ttk.Label(DataFrameRightDashboard, text='Ship Date: ')
+    DateLabel.grid(row=4, column=0)
+
+    PStatusLabel = ttk.Label(DataFrameRightDashboard, text='Packing Status: ')
+    PStatusLabel.grid(row=5, column=0)
+
+    SoEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.SO
+    SoEntry.delete(0,tk.END)
+    SoEntry.insert(0,entryText)
+    SoEntry.grid(row=0, column=1, padx=5, pady=5)
+   
+    IdEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.ID
+    IdEntry.delete(0,tk.END)
+    IdEntry.insert(0,entryText)
+    IdEntry.grid(row=1, column=1, padx=5, pady=5)
+
+    ModelEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.model
+    ModelEntry.delete(0,tk.END)
+    ModelEntry.insert(0,entryText)
+    ModelEntry.grid(row=2, column=1, padx=5, pady=5)
+
+    CustomerEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.customer
+    CustomerEntry.delete(0,tk.END)
+    CustomerEntry.insert(0,entryText)
+    CustomerEntry.grid(row=3, column=1, padx=5, pady=5)
+
+    DateEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.date
+    DateEntry.delete(0,tk.END)
+    DateEntry.insert(0,entryText)
+    DateEntry.grid(row=4, column=1, padx=5, pady=5)
+
+    PStatusEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.pstatus
+    PStatusEntry.delete(0,tk.END)
+    PStatusEntry.insert(0,entryText)
+    PStatusEntry.grid(row=5, column=1, padx=5, pady=5)
+
+    BackButton = ttk.Button(DataFrameRightDashboard, text="Back", width=10, 
+                            command=lambda : display_tool(tool_data))
+    BackButton.grid(row=6, column=0, padx=10, pady=5)
+
+    UpdateFinal = ttk.Button(DataFrameRightDashboard, text="Update", width=10, 
+                            command=lambda : update_tool(tool_data.SO, (SoEntry.get(),IdEntry.get(), ModelEntry.get().upper(), CustomerEntry.get().upper(), DateEntry.get(), PStatusEntry.get().upper())))
+    UpdateFinal.grid(row=6, column=1, padx=5, pady=5)
+
+def pack_tool_window(tool_data):
+    dest_widg_d_right()
+
+    # DataFrameRightDashboard.config(text=f"PACK TOOL: {tool_data.model} - {tool_data.SO} - {tool_data.ID}\n")
+
+    SO_entry = 1
+    ID_entry = 1
+    SoLabel = ttk.Label(DataFrameRightDashboard, text='SO: ')
+    SoLabel.grid(row=0, column=0)
+
+    IdLabel = ttk.Label(DataFrameRightDashboard, text='ID: ')
+    IdLabel.grid(row=1, column=0)
+
+    ModelLabel = ttk.Label(DataFrameRightDashboard, text='Model: ')
+    ModelLabel.grid(row=2, column=0)
+
+    CustomerLabel = ttk.Label(DataFrameRightDashboard, text='Customer: ')
+    CustomerLabel.grid(row=3, column=0)
+
+
+    SubjectLabel = ttk.Label(DataFrameRightDashboard, text='Subject: ')
+    SubjectLabel.grid(row=4, column=0)
+
+    MsgLabel = ttk.Label(DataFrameRightDashboard, text='Message: ')
+    MsgLabel.grid(row=5, column=0)
+
+    SoEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.SO
+    SoEntry.delete(0,tk.END)
+    SoEntry.insert(0,entryText)
+    SoEntry.grid(row=0, column=1, pady=5)
+   
+    IdEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.ID
+    IdEntry.delete(0,tk.END)
+    IdEntry.insert(0,entryText)
+    IdEntry.grid(row=1, column=1, pady=5)
+
+    ModelEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.model
+    ModelEntry.delete(0,tk.END)
+    ModelEntry.insert(0,entryText)
+    ModelEntry.grid(row=2, column=1, pady=5)
+
+    CustomerEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.customer
+    CustomerEntry.delete(0,tk.END)
+    CustomerEntry.insert(0,entryText)
+    CustomerEntry.grid(row=3, column=1, pady=5)
+
+    SubjectEntry = ttk.Entry(DataFrameRightDashboard, width=60)
+    entryText = f'{tool_data.SO} {tool_data.ID} Is ready to be closed! '
+    SubjectEntry.delete(0,tk.END)
+    SubjectEntry.insert(0,entryText)
+    SubjectEntry.grid(row=4, column=1, pady=5)
+
+    
+    MsgTextBox = tk.Text(DataFrameRightDashboard, width=50, height=5)
+    entryText = 'Hello, \nThe tool is ready to be closed. Please assist the packing process by arriving to perform a final check. \nThank you'
+    MsgTextBox.insert("end", entryText)
+    MsgTextBox.grid(row=5, column=1, pady=5, padx=10)
+
+
+    SendMissingButton = ttk.Button(DataFrameRightDashboard, text="Send Email", width=10 )
+    SendMissingButton.grid(row=6, column=1, pady=20)
+
+    PrintConfigButton = ttk.Button(DataFrameRightDashboard, text="Print Configuration", width=20, command=lambda : open_config(tool_data))
+    PrintConfigButton.grid(row=7, column=1, pady=20)
+
+    BackButton = ttk.Button(DataFrameRightDashboard, text="Back", width=10, command=lambda : display_tool(tool_data))
+    BackButton.grid(row=8, column=0, padx=10, pady=5)
+
+    UploadPhotosBUtton = ttk.Button(DataFrameRightDashboard, text="Upload Photos", width=20, command=lambda : open_photos(tool_data))
+    UploadPhotosBUtton.grid(row=8, column=1, pady=20)
+
+def missing_part_window(tool_data):
+    dest_widg_d_right()
+
+    # DataFrameRightDashboard.config(text=f"Missing Part: {tool_data.model} - {tool_data.SO} - {tool_data.ID}\n")
+
+    SO_entry = 1
+    ID_entry = 1
+    SoLabel = ttk.Label(DataFrameRightDashboard, text='SO: ')
+    SoLabel.grid(row=0, column=0)
+
+    IdLabel = ttk.Label(DataFrameRightDashboard, text='ID: ')
+    IdLabel.grid(row=1, column=0)
+
+    ModelLabel = ttk.Label(DataFrameRightDashboard, text='Model: ')
+    ModelLabel.grid(row=2, column=0)
+
+    CustomerLabel = ttk.Label(DataFrameRightDashboard, text='Customer: ')
+    CustomerLabel.grid(row=3, column=0)
+
+    TitleLabel = ttk.Label(DataFrameRightDashboard, text='Send Mail to CA Regarding missing part')
+    TitleLabel.grid(row=4, column=1, pady=20)
+
+    SubjectLabel = ttk.Label(DataFrameRightDashboard, text='Subject: ')
+    SubjectLabel.grid(row=5, column=0)
+
+    PNLabel = ttk.Label(DataFrameRightDashboard, text='P/N: ')
+    PNLabel.grid(row=6, column=0)
+
+    MsgLabel = ttk.Label(DataFrameRightDashboard, text='Message: ')
+    MsgLabel.grid(row=7, column=0)
+
+    SoEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.SO
+    SoEntry.delete(0,tk.END)
+    SoEntry.insert(0,entryText)
+    SoEntry.grid(row=0, column=1, pady=5)
+   
+    IdEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.ID
+    IdEntry.delete(0,tk.END)
+    IdEntry.insert(0,entryText)
+    IdEntry.grid(row=1, column=1, pady=5)
+
+    ModelEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.model
+    ModelEntry.delete(0,tk.END)
+    ModelEntry.insert(0,entryText)
+    ModelEntry.grid(row=2, column=1, pady=5)
+
+    CustomerEntry = ttk.Entry(DataFrameRightDashboard)
+    entryText = tool_data.customer
+    CustomerEntry.delete(0,tk.END)
+    CustomerEntry.insert(0,entryText)
+    CustomerEntry.grid(row=3, column=1, pady=5)
+
+    SubjectEntry = ttk.Entry(DataFrameRightDashboard, width=60)
+    entryText = f'{tool_data.SO} {tool_data.ID} Is missing a part/s! '
+    SubjectEntry.delete(0,tk.END)
+    SubjectEntry.insert(0,entryText)
+    SubjectEntry.grid(row=5, column=1, pady=5)
+
+    PNEntry = ttk.Entry(DataFrameRightDashboard, width=60)
+    entryText = 'P/N: '
+    PNEntry.delete(0,tk.END)
+    PNEntry.insert(0,entryText)
+    PNEntry.grid(row=6, column=1, pady=5)
+
+    MsgEntry = ttk.Entry(DataFrameRightDashboard, width=60)
+    entryText = 'Describe the missing part for this tool...'
+    MsgEntry.delete(0,tk.END)
+    MsgEntry.insert(0,entryText)
+    MsgEntry.grid(row=7, column=1, pady=5)
+
+    BackButton = ttk.Button(DataFrameRightDashboard, text="Back", width=10, command=lambda : display_tool(tool_data))
+    BackButton.grid(row=8, column=0, padx=10, pady=5)
+
+    SendMissingButton = ttk.Button(DataFrameRightDashboard, text="Send Email", width=10 )
+    SendMissingButton.grid(row=8, column=1, pady=20)
+
+def feedback_bar(str, col):
+    Status = tk.Label(TitFrame, text=f'{str}', font=('arial', 8, 'bold'), fg='#232829', height=1, width=8, padx=60, bd=2, bg=f'{col}', relief='groove')
+    Status.grid(row=0, column=2, padx=10)
+
+    TitFrame.after(2300, Status.destroy)
+
+def dest_widg_d_right():
+    for widget in DataFrameRightDashboard.winfo_children():
+        widget.destroy()
+
+def dest_widg_df_left():
+    for widget in DataFrameLeft.winfo_children():
+        widget.destroy()
+
+def display_tool(tool_data):
+
+    home_page()
+    dest_widg_d_right()
+
+    PStatusLabelColor = tk.Label(DataFrameRightDashboard, text=f'{tool_data.model}  -  {tool_data.SO}  -  {tool_data.ID}  -  {tool_data.pstatus}', bg=f'{get_color(tool_data.pstatus.lower())}', relief='groove', font=('bold', 10))
+    PStatusLabelColor.grid(row=0, column=0, pady=30, ipadx=30, ipady=10, rowspan=1, columnspan=3)
+
+    OpenConfigButton = ttk.Button(DataFrameRightDashboard, text="Configuration", width=17, command=lambda : open_config(tool_data))
+    OpenConfigButton.grid(row=1, column=0, padx=5, pady=5)
+
+    UpdateButton = ttk.Button(DataFrameRightDashboard, text="Update", width=17, command=lambda : update_tool_window(tool_data))
+    UpdateButton.grid(row=1, column=1, padx=5, pady=5)
+
+    MissingPartButton = ttk.Button(DataFrameRightDashboard, text="Missing Part", width=17, command=lambda : missing_part_window(tool_data))
+    MissingPartButton.grid(row=1, column=2, padx=5, pady=5)
+
+    PackButton = ttk.Button(DataFrameRightDashboard, text="Pack Tool", width=17, command= lambda : pack_tool_window(tool_data))
+    PackButton.grid(row=2, column=0, padx=5, pady=5)
+
+    DeleteButton = ttk.Button(DataFrameRightDashboard, text="Delete", width=17, command= lambda : delete_tool(tool_data))
+    DeleteButton.grid(row=2, column=1, padx=5, pady=5)
+
+    WhiteSpaceFrame = ttk.Frame(DataFrameRightDashboard)
+    WhiteSpaceFrame.grid(row=4, column=0, columnspan=3, pady=30)
+
+    LogTitleLabel = ttk.Label(DataFrameRightDashboard, text="Tool Action Log", font=('bold'))
+    LogTitleLabel.grid(row=5, column=0, columnspan=3)
+
+    ScrollFrame = tk.Frame(DataFrameRightDashboard)
+    ScrollFrame.grid(row=6, column=0, columnspan=3, padx=90)
+
+    ScrollWindow = tk.Scrollbar(ScrollFrame, width=20)
+    ScrollWindow.pack(side='right', fill='y')
+    
+    LogData = tk.Listbox(ScrollFrame, yscrollcommand = ScrollWindow.set, width=60)
+    for item in reversed(search_tool_log("SO", tool_data.SO)):
+        data = ""
+        for i in item:
+            LogData.insert(tk.END, f'{i}')    
+        LogData.insert(tk.END, '--------------\n')
+    LogData.pack(side='left', fill ='both')
+    ScrollWindow.config(command=LogData.yview)
+
+    DataFrameRightDashboard.columnconfigure(0, weight=1)
+    DataFrameRightDashboard.columnconfigure(1, weight=1)
+    DataFrameRightDashboard.columnconfigure(2, weight=1)
+    DataFrameRightDashboard.rowconfigure(0, weight=1)
+    DataFrameRightDashboard.rowconfigure(1, weight=1)
+    DataFrameRightDashboard.rowconfigure(2, weight=1)
+    DataFrameRightDashboard.rowconfigure(3, weight=1)
+    DataFrameRightDashboard.rowconfigure(4, weight=1)
+    DataFrameRightDashboard.rowconfigure(5, weight=1)
+    DataFrameRightDashboard.rowconfigure(6, weight=1)
+
+def home_page():
+    dest_widg_df_left()
+    tools = search_tool('*', '*')
+    i=j=0
+    
+    ToolButCanva = tk.Canvas(DataFrameLeft, width=800, height=514, bg=get_color('none'))
+    ToolButFrame = ttk.Frame(ToolButCanva, borderwidth=0)
+    ScrollWindowButtons = tk.Scrollbar(DataFrameLeft, width=20, orient='vertical', command=ToolButCanva.yview)
+    ToolButCanva.configure(yscrollcommand = ScrollWindowButtons.set)
+    
+    ScrollWindowButtons.pack(side='right', fill='y')
+    ToolButCanva.pack(side='right', fill ='both', expand='True')
+    ToolButCanva.create_window((4,4), window=ToolButFrame, anchor='nw')
+
+    ToolButFrame.bind("<Configure>", lambda event, ToolButCanva=ToolButCanva: onFrameConfigure(ToolButCanva))
+
+    for tool in tools:
+        date = datetime.strptime(tool.date,'%d/%m/%Y')
+        name = tk.Button(ToolButFrame, text=f"{tool.pstatus}\n{tool.model}\n{tool.SO}\n{tool.ID}\n{date.strftime('%b %d')}", width=20, bg=f'{get_color(tool.pstatus.lower())}',
+                                command=lambda x=tool : display_tool(x))
+        name.grid(row=j, column=i, padx=25, pady=15)
+        i += 1
+        if (i%4) == 0:
+            j += 1
+            i = 0 
+
+def onFrameConfigure(ToolButCanva):
+    ToolButCanva.configure(scrollregion=(ToolButCanva.bbox("all")))   
+
+def change_theme(theme):
+    style.theme_use(f'{theme}')
+    if style.theme_use() == 'awdark':
+        root.config(bg='#33393b')
+    if style.theme_use() == 'awlight':
+        root.config(bg='#e8e8e7')
+    feedback_bar('Theme Changed', '#82CDAA')
+    home_page()
+    dest_widg_d_right()
+
+def refresh_page():
+    home_page()
+    dest_widg_d_right()
+    feedback_bar("Refreshing", '#82CDAA')
+
+def exit_window():
+    if pop_up_window('Exit Packing Team Managment? ') == 'yes':
+        root.destroy()
+    else:
+        feedback_bar('Canceled', '#FDC0B1')
+        
+
+# __________SQLite Functions__________
+
+def createDB():
+    cursor.execute("""CREATE TABLE IF NOT EXISTS tools (
+                SO interger,
+                ID interger,
+                Model text,
+                Customer text,
+                Date text,
+                PStatus text
+                )""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS toolslog (
+                SO interger,
+                Time text,
+                Action text,
+                Detail text
+                )""")
+    # cursor.execute("""CREATE TABLE IF NOT EXISTS users (
+    #             ID interger,
+    #             Password text
+    #             )""")
+
+def add_tool(tool_data):
+    so = int(tool_data[0])
+    id = int(tool_data[1])
+    model = tool_data[2].upper()
+    customer = tool_data[3].upper()
+    date = tool_data[4]
+    pstatus = 'UNDEFINED'
+    result_SO = search_tool('SO', so)
+    result_ID = search_tool('ID', id)
+    if result_ID == [] and result_SO == [] and vali_date(date):
+        confirm = pop_up_window(f'Add [{so} {id} {model} {customer}] to the database? ')
+        if confirm == 'yes':
+            new_tool = Tool(SO=so, ID=id, model=model, customer=customer, date=date, pstatus="Packing")
+            conn = sqlite3.connect(f'{dir_path}\packing.db')
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO tools VALUES(:SO, :ID, :model, :customer, :date, :pstatus)",
+                        {'SO': new_tool.SO, 'ID': new_tool.ID, 'model': new_tool.model, 'customer': new_tool.customer,
+                         'date':new_tool.date, 'pstatus':pstatus})
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+            conn = sqlite3.connect(f'{dir_path}\packing.db')
+            cursor = conn.cursor()
+            nowTime = datetime.now()
+            cursor.execute("INSERT INTO toolslog VALUES(:SO, :Time, :Action, :Detail)",
+                        {'SO': new_tool.SO, 'Time':nowTime.strftime("%Y-%m-%d %H:%M"), 'Action':'Added Tool', 'Detail':'Tool Added to Database'})
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+
+            home_page()
+            add_tool_window()
+            feedback_bar(f'Tool  ({so})  Added', '#82CDAA')
+        else:
+            feedback_bar("Tool NOT added to database",'#FDC0B1')    
+    elif result_SO != []:
+        feedback_bar(f"SO: {so} already exists", '#FDC0B1')
+    elif result_ID != []:
+        feedback_bar(f"ID: {id} already exists", '#FDC0B1')
+    elif not vali_date(date):
+        feedback_bar('Incorrect Date Format Entered', '#FDC0B1')
+
+def delete_tool(tool_data):
+    
+    confirm = pop_up_window(f'Delete [{tool_data.SO} {tool_data.ID} {tool_data.model} {tool_data.customer}] from the database? ')
+    if confirm == 'yes':
+        conn = sqlite3.connect(f'{dir_path}\packing.db')
+        cursor = conn.cursor()
+        cursor.execute(f"DELETE FROM tools WHERE SO=:{tool_data.SO}", {f'{tool_data.SO}': tool_data.SO})
+        conn.commit()
+        
+        # cursor.execute(f"DELETE FROM toolslog WHERE SO=:{tool_data.SO}", {f'{tool_data.SO}': tool_data.SO})
+        # conn.commit()
+        
+        cursor.close()
+        conn.close()
+        feedback_bar(f'Tool  ({tool_data.SO})  Deleted', '#82CDAA')
+    else:
+         feedback_bar('Canceled', '#FDC0B1')
+    home_page()
+    dest_widg_d_right()
+    
+def delete_database():
+
+    if pop_up_window('Delete ALL tools from the database? ') == 'yes':
+        conn = sqlite3.connect(f'{dir_path}\packing.db')
+        cursor = conn.cursor()
+        cursor.execute(f"DROP TABLE tools")
+        conn.commit()
+        cursor.execute(f"DROP TABLE toolslog")
+        conn.commit()
+        cursor.close()
+        conn.close()
+        home_page()
+        dest_widg_d_right()
+    else:
+        feedback_bar('Canceled', '#FDC0B1')
+
+def update_tool(orig_so, tool_data):
+
+    old_data = search_tool('SO', orig_so)
+    so = int(tool_data[0])
+    toolid = int(tool_data[1])
+    model = tool_data[2]
+    customer = tool_data[3]
+    date = tool_data[4]
+    if vali_date(date):
+        pstatus = tool_data[5].upper()
+        conn = sqlite3.connect(f'{dir_path}\packing.db')
+        cursor = conn.cursor()
+        cursor.execute(f"UPDATE tools SET SO={old_data[0].SO} ,ID={toolid}, Model='{model}', Customer='{customer}', Date='{date}', PStatus='{pstatus}' WHERE SO=:{so}", {f'{so}': so})
+        conn.commit()
+
+        nowTime = datetime.now()
+        cursor.execute("INSERT INTO toolslog VALUES(:SO, :Time, :Action, :Detail)",
+                        {'SO': orig_so, 'Time':nowTime.strftime("%Y-%m-%d %H:%M"), 'Action':'Update', 'Detail':f'{check_if_change(old_data, tool_data)}'})
+        conn.commit()
+        cursor.close()
+        conn.close()
+        home_page()
+        if check_if_change(old_data, tool_data) != 'Cannot Change SO':
+            feedback_bar(f'Tool  ({so})  Updated', '#82CDAA')
+    else:
+        feedback_bar('Incorrect Date Format entered', '#FDC0B1')
+
+def search_tool(key_type, key):
+
+    conn = sqlite3.connect(f'{dir_path}\packing.db')
+    cursor = conn.cursor()
+    if key_type == '*' and key == '*':
+        cursor.execute("SELECT so, id, model, customer, date, pstatus FROM tools")
+    elif key_type != '*' and key != '*':
+        cursor.execute(f"SELECT so, id, model, customer, date, pstatus FROM tools WHERE {key_type}=:{key_type}", {f'{key_type}': key})
+    else:
+        print("Not valid Search criteria...")
+    conn.commit()
+    result = []
+    for item in cursor.fetchall():
+        new_item = Tool(SO=item[0], ID=item[1], model=item[2], customer=item[3], date=item[4], pstatus=item[5])
+        result.append(new_item)
+    return result
+
+def search_tool_log(key_type, key):
+
+    conn = sqlite3.connect(f'{dir_path}\packing.db')
+    cursor = conn.cursor()
+    if key_type == '*' and key == '*':
+        cursor.execute("SELECT so, time, action, detail FROM toolslog")
+    elif key_type != '*' and key != '*':
+        cursor.execute(f"SELECT so, time, action, detail FROM toolslog WHERE {key_type}=:{key_type}", {f'{key_type}': key})
+    else:
+        print("Not valid Search criteria...")
+    conn.commit()
+    return cursor.fetchall()
+
+
+# __________Helper Functions__________
+
+def open_config(tool_data):
+    keyword = str(tool_data.SO)
+    for fname in os.listdir(f'{dir_path}\configurations'):
+        if keyword in fname:
+            fname = fname.replace('.xlsx', '')
+            os.system(f'start "excel" "{dir_path}\\configurations\\{fname}.xlsx"')
+            return     
+    feedback_bar('No Configuration Found', '#FDC0B1')
+
+def check_if_change(old_data, tool_data):
+    result = ""
+
+    if int(old_data[0].SO) != int(tool_data[0]):
+        feedback_bar("The SO Cannot be changed", '#FDC0B1')
+        result += "Cannot Change SO"
+        return result
+
+    if int(old_data[0].ID) != int(tool_data[1]):
+        result += f" ({old_data[0].ID}-->{tool_data[1]})"
+
+    if old_data[0].model != tool_data[2]:
+        result += f" ({old_data[0].model}-->{tool_data[2]})"
+
+    if old_data[0].customer != tool_data[3]:
+        result += f" ({old_data[0].customer}-->{tool_data[3]})"
+
+    if old_data[0].date != tool_data[4]:
+        result += f" ({old_data[0].date}-->{tool_data[4]})"
+
+    if old_data[0].pstatus != tool_data[5]:
+        result += f" ({old_data[0].pstatus}-->{tool_data[5]})"
+    return result
+
+def vali_date(datestr):
+    try:
+        date = datetime.strptime(datestr,'%d/%m/%Y')
+        return True
+    except ValueError:
+        return False
+
+def import_bulk_tools():
+    
+    # file_name = input('Enter file name (example.txt): ')
+    # input_tools = []
+    # path = os.path.dirname(os.path.realpath(__file__))
+    # if os.path.exists(f'{path}\{file_name}'):
+    #     with open(path, 'r') as f:
+    #         temp_input_tools = f.read().splitlines()
+    #         input_tools = temp_input_tools
+    #         for tool_data in input_tools:
+    #             tool_data = tool_data.split(' ')
+    #             add_tool(tool_data)
+    pass
+
+def open_photos(tool_data):
+    keyword = str(tool_data.SO)
+    for fname in os.listdir(f'{dir_path}\Photos'):
+        if keyword in fname:
+            path = f'{dir_path}\Photos\{fname}'
+            open(path)
+            return     
+    feedback_bar('No Folder Found', '#FDC0B1')
+
+def get_color(status):
+
+    if status == 'packed':
+        return '#82CDAA'
+    if status == 'packing':
+        return '#FDE9B7'
+    if status == 'hold':
+        return '#FDC0B1'
+    elif style.theme_use() == 'awdark':
+        return 'dark grey'
+    elif style.theme_use() == 'awlight':
+        return 'light grey'
+    home_page()
+
+
+# __________Tkinter Frames__________
+MainFrame = ttk.Frame(root)
+MainFrame.grid()
+
+TitFrame = ttk.Frame(MainFrame)
+TitFrame.pack(side="top")
+
+TitleLabel = ttk.Label(TitFrame, font=('arial', 20, 'bold'), text='Packing Team Managment')
+TitleLabel.grid(row=0, column=0,padx=50)
+
+Space = ttk.Label(TitFrame, width=75)
+Space.grid(row=0, column=1)
+
+TitleFeedbackBar = tk.Label(TitFrame, height=1, width=8, padx=60, bd=2, bg='grey', relief='groove')
+TitleFeedbackBar.grid(row=0, column=2, padx=10)
+
+CreditFrame = ttk.Frame(MainFrame, width=1300, height=150)
+CreditFrame.pack(side='bottom')
+
+ButtonFrame = ttk.Frame(MainFrame, width=1300, height=110)
+ButtonFrame.pack(side='bottom')
+
+DataFrame = ttk.Frame(MainFrame, width=1300, height=550)
+DataFrame.pack(side='bottom')
+
+DataFrameLeft = ttk.LabelFrame(DataFrame, width=800, height=550)
+DataFrameLeft.pack(side='left')
+
+DataFrameRight = ttk.LabelFrame(DataFrame, width=550, height=550)
+DataFrameRight.pack(side='right')
+
+DataFrameRightDashboard = ttk.LabelFrame(DataFrameRight, width=550, height=518, borderwidth=0)
+DataFrameRightDashboard.pack()
+DataFrameRightDashboard.grid_propagate(0)
+
+Menubar = tk.Menu(root)
+filemenu = tk.Menu(Menubar, tearoff=0)
+filemenu.add_command(label="Refresh", command=lambda : refresh_page())
+filemenu.add_command(label="Report Bug")
+filemenu.add_separator()
+filemenu.add_command(label="Exit", command=root.quit)
+Menubar.add_cascade(label="File", menu=filemenu)
+
+thememenu = tk.Menu(Menubar, tearoff=0)
+thememenu.add_command(label="Light Theme", command=lambda : change_theme('awlight'))
+thememenu.add_command(label="Dark Theme",  command=lambda : change_theme('awdark'))
+Menubar.add_cascade(label="Theme", menu=thememenu)
+
+helpmenu = tk.Menu(Menubar, tearoff=0)
+helpmenu.add_command(label="Help Index")
+helpmenu.add_command(label="About...", command=lambda : credit_window())
+Menubar.add_cascade(label="Help", menu=helpmenu)
+
+
+
+root.columnconfigure(0, weight=1)
+root.columnconfigure(1, weight=1)
+root.columnconfigure(2, weight=1)
+root.rowconfigure(1, weight=1)
+root.rowconfigure(2, weight=1)
+root.rowconfigure(3, weight=1)
+
+# __________Tkinter Buttons__________
+AddNewButton = ttk.Button(ButtonFrame, text="Add New", width=20, command=lambda :  add_tool_window())
+AddNewButton.grid(row=0, column=0, padx=10, pady=10)
+
+DeleteAllButton = ttk.Button(ButtonFrame, text="Delete Databse", width=20, command=lambda : delete_database())
+DeleteAllButton.grid(row=0, column=1, padx=10, pady=10)
+
+ExitButton = ttk.Button(ButtonFrame, text="Exit", width=20, command=lambda : exit_window())
+ExitButton.grid(row=0, column=2, padx=10, pady=10)
+
+CreditLabel = ttk.Label(CreditFrame, text='Eli Arnson - Packing Team Process Managment - 2020', font=('Helvetica', 8,'italic'))
+CreditLabel.grid(row=0, column=0, padx=10, pady=5)
+
+TitFrame.columnconfigure(0, weight=1)
+TitFrame.columnconfigure(1, weight=1)
+TitFrame.columnconfigure(2, weight=1)
+TitFrame.columnconfigure(3, weight=1)
+TitFrame.columnconfigure(4, weight=2)
+TitFrame.columnconfigure(5, weight=2)
+
+ButtonFrame.columnconfigure(0, weight=3)
+ButtonFrame.columnconfigure(1, weight=3)
+ButtonFrame.columnconfigure(2, weight=3)
+
+CreditFrame.columnconfigure(0, weight=1)
+
+createDB()
+home_page()
+
+root.config(menu=Menubar)
+root.configure(bg=style.lookup('TFrame', 'background'))
+root.mainloop()
+conn.close()
